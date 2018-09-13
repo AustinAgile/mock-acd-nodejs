@@ -1,0 +1,25 @@
+# Sevice
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Values.global.namespace }}
+  name: mock-acd
+  annotations:
+    Release.Name: {{ .Release.Name }}
+    Release.Revision: "{{ .Release.Revision }}"
+    Chart.Name: {{ .Chart.Name }}
+    Chart.Version: {{ .Chart.Version }}
+spec:
+  ports:
+  - name: default
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  - name: monitor
+    port: 9143
+    protocol: TCP
+    targetPort: 9143
+  selector:
+    app: mock-acd
+  sessionAffinity: None
+  type: ClusterIP

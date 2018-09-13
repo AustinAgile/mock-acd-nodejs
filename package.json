@@ -1,0 +1,28 @@
+{
+	"name": "mock-acd",
+	"version": "0.0.0",
+	"description": "Demo at this point",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Mattersight/mock-acd-nodejs"
+	},
+	"main": "app.js",
+	"scripts": {
+	},
+	"author": "Mattersight",
+	"license": "SEE LICENSE IN LICENSE.txt",
+	"dependencies": {
+		"async": "*",
+		"k8s-configmap-volumes": "*",
+		"k8s-prometheus-metrics": "*",
+		"kubernetes-probes": "*",
+		"lodash": "*",
+		"log4js": "*",
+		"rabbit.js": "*",
+		"sleep": "*",
+		"tree-kill": "*"
+	},
+	"devDependencies": {
+	}
+}

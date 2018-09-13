@@ -1,0 +1,15 @@
+global:
+  namespace: mock-ba
+
+exports:
+  api:
+    global:
+      acdExchangeName: cti
+
+image:
+  version: 2.2.4
+  repo: matr
+mode: prod
+dev:
+  mounts:
+    code: false

@@ -1,0 +1,90 @@
+# Deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.global.namespace }}
+  name: mock-acd-nodejs
+  labels:
+    app: mock-acd
+  annotations:
+    Release.Name: {{ .Release.Name }}
+    Release.Revision: "{{ .Release.Revision }}"
+    Chart.Name: {{ .Chart.Name }}
+    Chart.Version: {{ .Chart.Version }}
+    deployment.kubernetes.io/revision: "1"
+  generation: 1
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: mock-acd
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        Release.Name: {{ .Release.Name }}
+        Chart.Name: {{ .Chart.Name }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9143"
+        prometheus.io/interval: 5s
+      labels:
+        app: mock-acd
+      name: mock-acd
+    spec:
+      containers:
+      - name: mock-acd
+        image: {{ .Values.image.repo }}/mock-acd-nodejs:{{ .Values.image.version }}
+        imagePullPolicy: IfNotPresent
+        command: ["node", "mode"]
+        ports:
+        - containerPort: 80
+          name: ctieventstream
+        - containerPort: 9143
+          name: monitor
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        {{ if .Values.dev.mounts.code }}
+        - name: code
+          mountPath: /usr/src/apps/mock-acd-nodejs
+        {{ end }}
+        resources: {}
+        securityContext:
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        readinessProbe:
+          httpGet:
+            path: /probes/readiness
+            port: 80
+          initialDelaySeconds: 2
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /probes/liveness
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mock-acd-nodejs
+      {{ if .Values.dev.mounts.code }}
+      - name: code
+        hostPath:
+          path: /development/github/kubernetes/mock-acd-nodejs
+      {{ end }}
+#      - name: code
+#        nfs:
+#          path: /srv/nfs-shares/matr00659/development/github/kubernetes/mock-acd-nodejs
+#          server: 172.30.10.150
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 5
